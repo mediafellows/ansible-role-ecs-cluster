@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mediapeers/ansible-role-ecs-cluster.svg?branch=master)](https://travis-ci.org/mediapeers/ansible-role-ecs-cluster)
+
 # ansible-role-ecs-cluster
 
 Ansible role for simplifying the provisioning and decommissioning of Auto-scaling ECS clusters within an AWS account.
