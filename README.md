@@ -1,7 +1,4 @@
-[![Circle CI](https://circleci.com/gh/daniel-rhoades/aws-ecs-autoscale-role.svg?style=svg&circle-token=89c46651d8d1aa19bd417d0ac30e181c71db22c6)](https://circleci.com/gh/daniel-rhoades/aws-ecs-autoscale-role)
-
-aws-ecs-autoscale-role
-======================
+# ansible-role-ecs-cluster
 
 Ansible role for simplifying the provisioning and decommissioning of Auto-scaling ECS clusters within an AWS account.
 
@@ -14,15 +11,13 @@ For more detailed on information on the creating:
 
 This role will completely setup an unlimited size, self-healing, auto-scaling EC2 cluster registered to an ECS cluster, ready to accept ECS Service and Task Definitions with centralised log management.
 
-Requirements
-------------
+## Requirements
 
 Requires the latest Ansible EC2 support modules along with Boto.
 
 You will also need to configure your Ansible environment for use with AWS, see http://docs.ansible.com/ansible/guide_aws.html.
 
-Role Variables
---------------
+## Role Variables
 
 Defaults:
 
@@ -62,17 +57,15 @@ Required variables:
 * ec2_asg_availability_zones: You must specify a list of existing EC2 availability zones for which to provisioning instances into;
 * ec2_asg_vpc_subnets: You must specify a list of existing VPC subnets for which to provision the EC2 nodes into.
 
-Dependencies
-------------
+## Dependencies
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Depends on no other A`nsible roles.
 
-Example Playbook
-----------------
+## Example Playbook
 
-Before using this role you will need to install the role, the simplist way to do this is: `ansible-galaxy install daniel-rhoades.aws-ecs-autoscale`.
+Before using this role you will need to install the role, the simplist way to do this is: `ansible-galaxy install mediapeers.ansible-role-ecs-cluster`.
 
-For completeness the examples create
+For completeness the examples creates
 
 * VPC to hold the ECS cluster, using the role: `daniel-rhoades.aws-vpc`;
 * EC2 Security Groups to apply to the EC2 instances, using the role: `daniel-rhoades.aws-security-group`.
@@ -258,12 +251,10 @@ To decommission the groups:
       }
 ```
 
-License
--------
+## License
 
 MIT
 
-Author Information
-------------------
+## Author Information
 
 Daniel Rhoades (https://github.com/daniel-rhoades)
