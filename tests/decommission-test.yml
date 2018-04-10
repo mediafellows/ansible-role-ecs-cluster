@@ -30,15 +30,6 @@
     my_ecs_cluster_name: "my-cluster"
 
   roles:
-    # Provision networking
-    - {
-        role: daniel-rhoades.aws-vpc,
-        vpc_name: "{{ my_vpc_name }}",
-        vpc_region: "{{ my_vpc_region }}",
-        vpc_cidr_block: "{{ my_vpc_cidr }}",
-        vpc_subnets: "{{ my_vpc_subnets }}",
-        public_subnet_routes: "{{ my_public_subnet_routes }}"
-      }
 
     # Decommision ECS with auto scaling EC2 instances
     - {
