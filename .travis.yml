@@ -20,4 +20,4 @@ install:
 script:
   # Check the role/playbook's syntax:
   - ansible-playbook -i tests/inventory tests/provision-test.yml --syntax-check
-  - ansible-playbook -i tests/inventory tests/decomission-test.yml --syntax-check
+  - ansible-playbook -i tests/inventory tests/decommission-test.yml --syntax-check

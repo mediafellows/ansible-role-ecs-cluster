@@ -26,6 +26,7 @@
       instance_profile_name: "{{ ecs_instance_profile_name }}"
       assign_public_ip: "{{ ec2_assign_public_ip }}"
       user_data: "{{ ec2_userdata }}"
+      region: "{{ ec2_region }}"
     register: ec2_lc
 
   - debug: var=ec2_lc verbosity=4
@@ -47,6 +48,7 @@
       vpc_zone_identifier: "{{ ec2_asg_vpc_subnets }}"
       tags: "{{ ec2_asg_tags }}"
       wait_for_instances: "{{ ec2_asg_wait }}"
+      region: "{{ ec2_region }}"
     register: ec2_asg
 
   - debug: var=ec2_asg verbosity=4

@@ -7,8 +7,11 @@ env: development
 # EC2 instance type to use
 ec2_instance_type: "t2.micro"
 
+# Region for EC2 launches
+ec2_region: us-east-1
+
 # EC2 image that contains a Docker server + ECS Agent, AWS provides a suitable default
-ec2_ami_id: "ami-9c9819ef"
+ec2_ami_id: "ami-a7a242da"
 
 # Name that will be given to EC2 instances created as part of auto-scaling
 ec2_instance_name: "ecs_host"
