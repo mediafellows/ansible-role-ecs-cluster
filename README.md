@@ -21,43 +21,16 @@ You will also need to configure your Ansible environment for use with AWS, see h
 
 ## Role Variables
 
-Defaults:
-
-* ec2_launch_configuration_name: Name to give to the EC2 Launch Configuration for Auto-scaling purposes, defaults to `{{ ecs_cluster_name }}-lc`;
-* ec2_instance_type: EC2 instance type to use in the EC2 Launch Configuration, defaults to `t2.micro`;
-* ec2_ami_id: EC2 image (AMI) that contains a Docker server + ECS Agent, AWS provides a suitable default - `ami-76e95b05`;
-* ec2_instance_name: Name to give to EC2 instances created during auto-scaling, default to `ecs_host`;
-* ecs_instance_profile_name: IAM role ECS will use to manage EC2 instances, defaults to `ecsInstanceRole`;
-* ec2_assign_public_ip: If you want the EC2 instances to have a public IP, defaults to true;
-* ec2_instance_monitoring: If you want AWS to monitor the EC2 instance for you, defaults to true;
-* ec2_userdata: Script to run when an EC2 instance is provisioned for ECS use.  This is an important script;
-* ec2_asg_name: Name of the Auto Scaling Group, defaults to `{{ ecs_cluster_name }}-asg`;
-* ec2_asg_min_size: Minimum number of EC2 instances to keep running, defaults to 2;
-* ec2_asg_max_size: Maximum number of EC2 instances to keep running, defaults to 4;
-* ec2_asg_desired_capacity: Desired number of EC2 instances to keep running under normal conditions;
-* ec2_asg_tags: Tags to set on any EC2 instances created as part of the auto scaling group, defaults to name=`{{ vpc_name }}_{{ ec2_instance_name }}`;
-* ec2_asg_wait: Wait for EC2 instances within the auto scaling group to become available before moving on to the next task, defaults to true;
-* ec2_asg_replace_all_instances: Perform a rolling update if the Launch Configuration has changed;
-* ec2_asg_health_check_period: Health check interval, defaults to 60 seconds;
-* ec2_asg_health_type: Method for performing the health check, defaults to EC2;
-* ec2_asg_default_cooldown: Scaling cooldown period, defaults to 300 seconds;
-* ecs_state: State of the ECS cluster, default to "present";
-* ec2_lc_state: State of the Launch Configuration, defaults to "present";
-* ec2_asg_state: State of the Auto-scaling Group, defaults to "present"
-
-The IAM roles listed above need to already exist (this role will create them in the future), the easiest way to do that is follow the AWS ECS guide to setting up a default cluster -  https://aws.amazon.com/ecs/getting-started/.  Afterwards this cluster can be deleted and the IAM roles will still remain.
-
-The default `ec2_userdata` will register the EC2 instance within the ECS cluster and configure the instance to stream it's logs to AWS CloudWatch Logs for centralised management.  Log Groups are pre-pended with `{{ application_name }}-{{ env }}`
-
-Rember to control the size your cluster with default variables as listed above.
-
 Required variables:
 
-* ecs_cluster_name: You must specify the name of the ECS cluster, e.g. my-cluster;
-* key_name: You must specify the name of the SSH key you want to assign to the EC2 instances, e.g. my-ssh-key;
-* ec2_security_groups: You must specify a list of existing EC2 security groups IDs to apply to the auto-scaling EC2 instances;
-* ec2_asg_availability_zones: You must specify a list of existing EC2 availability zones for which to provisioning instances into;
-* ec2_asg_vpc_subnets: You must specify a list of existing VPC subnets for which to provision the EC2 nodes into.
+* `ecs_cluster_name` - You must specify the name of the ECS cluster, e.g. my-cluster
+* `ecs_ssh_key_name` - You must specify the name of the SSH key you want to assign to the EC2 instances, e.g. my-ssh-key
+* `ecs_security_groups` - You must specify a list of existing EC2 security groups IDs to apply to the auto-scaling EC2 instances, e.g. ['sg-1234']
+* `ecs_vpc_subnets` - You must specify a list of existing VPC subnet ids for which to provision the EC2 nodes into, e.g. ['subnet-123', 'subnet-456']
+
+For overwriting other variables (with defaults) checkout `defaults/main.yml` for reference.
+
+The default `ecs_userdata` will register the EC2 instance within the ECS cluster and configure the instance to stream it's logs to AWS CloudWatch Logs for centralised management.  Log Groups are pre-pended with `{{ application_name }}-{{ env }}`
 
 ## Dependencies
 
