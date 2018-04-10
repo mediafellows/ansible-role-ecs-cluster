@@ -61,7 +61,7 @@ Required variables:
 
 ## Dependencies
 
-Depends on no other A`nsible roles.
+Depends on no other Ansible roles.
 
 ## Example Playbook
 

@@ -4,8 +4,8 @@
   gather_facts: no
   vars:
     # For ansible-role-ecs-cluster role:
-    ecs_cluster_name: "my-cluster",
-    vpc_name: "my_example_vpc",
+    ecs_cluster_name: "my-cluster"
+    vpc_name: "my_example_vpc"
     ecs_state: "absent"
   roles:
     - ansible-role-ecs-cluster

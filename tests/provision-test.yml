@@ -6,20 +6,17 @@
     my_vpc_region: "eu-west-1"
 
     # For ansible-role-ecs-cluster role:
-    ecs_cluster_name: "my-cluster",
-    vpc_name: "my_example_vpc",
+    ecs_cluster_name: "my-cluster"
+    vpc_name: "my_example_vpc"
     key_name: "test-key"
-    ec2_security_groups: [
-      "sg-123",
-      "sg-345"
-    ],
-    ec2_asg_availability_zones: [
-      "{{ my_vpc_region }}a",
-      "{{ my_vpc_region }}b"
-    ],
-    ec2_asg_vpc_subnets: [
-      "subnet-id-1",
-      "subnet-id-2"
-    ],
+    ec2_security_groups:
+      - "sg-123"
+      - "sg-345"
+    ec2_asg_availability_zones:
+      - "{{ my_vpc_region }}a"
+      - "{{ my_vpc_region }}b"
+    ec2_asg_vpc_subnets:
+      - "subnet-id-1"
+      - "subnet-id-2"
   roles:
     - ansible-role-ecs-cluster
