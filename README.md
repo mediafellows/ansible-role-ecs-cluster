@@ -30,7 +30,12 @@ Required variables:
 
 For overwriting other variables (with defaults) checkout `defaults/main.yml` for reference.
 
-The default `ecs_userdata` will register the EC2 instance within the ECS cluster and configure the instance to stream it's logs to AWS CloudWatch Logs for centralised management.  Log Groups are pre-pended with `{{ application_name }}-{{ env }}`
+**Notes:**
+
+Make sure that `ecs_ec2_region` is set correctly. Machine tagging can be done by setting `ecs_ec2_tags`.
+
+The default `ecs_userdata` will register the EC2 instance within the ECS cluster and configure the instance to stream it's logs to AWS CloudWatch Logs for centralised management.
+Log Groups are pre-pended with `{{ cloudwatch_namespace }}`
 
 ## Dependencies
 
@@ -111,6 +116,7 @@ one using this role to setup the ECS cluster using the results of the VPC setup.
     ecs_ec2_tags:
       - Name: "my-ec2-cluster-instance"
       - role: "ecs-cluster"
+    ecs_ec2_region: us-east-1
   roles:
     - mediapeers.ansible-role-ecs-cluster
 
