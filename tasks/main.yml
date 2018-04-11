@@ -16,7 +16,8 @@
   - name: "AWS | IAM | Create IAM role needed for cluster EC2 instances access to AWS EC2 services"
     iam_role:
       name: "{{ ecs_instance_iam_role }}"
-      description: "EC2 permissions for EC2 instances that are part of EC2 clusters"
+      # TODO: uncomment next line once we switched to Ansible 2.5
+      # description: "EC2 permissions for EC2 instances that are part of EC2 clusters"
       managed_policy:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
       state: present
