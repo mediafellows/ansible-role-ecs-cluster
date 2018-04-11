@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/mediapeers/ansible-role-ecs-cluster.svg?branch=master)](https://travis-ci.org/mediapeers/ansible-role-ecs-cluster)
 
-# ansible-role-ecs-cluster
+# Ansible role for creating an AWS ECS-Cluster
 
 Ansible role for simplifying the provisioning and decommissioning of Auto-scaling ECS clusters within an AWS account.
 
@@ -13,11 +13,16 @@ For more detailed on information on the creating:
 
 This role will completely setup an unlimited size, self-healing, auto-scaling EC2 cluster registered to an ECS cluster, ready to accept ECS Service and Task Definitions with centralised log management.
 
+## Installation
+
+Install this role through your usual patterns into your Ansible project. Either use `ansible-galaxy install mediapeers.ecs-cluster` or add it to your roles
+dir by adding it as a git submodule.
+
 ## Requirements
 
-Requires the latest Ansible EC2 support modules along with Boto.
+Needs a VPC with subnets and security groups to be present on AWS already for this role to use. Also you should use Ansible 2.4 or newer.
 
-You will also need to configure your Ansible environment for use with AWS, see http://docs.ansible.com/ansible/guide_aws.html.
+If not already done you also need to configure your Ansible environment for use with AWS, see http://docs.ansible.com/ansible/guide_aws.html.
 
 ## Role Variables
 
@@ -43,9 +48,9 @@ Depends on no other Ansible roles.
 
 ## Example Playbook
 
-Before using this role you will need to install the role, the simplist way to do this is: `ansible-galaxy install mediapeers.ansible-role-ecs-cluster`.
+After installing this role you can use it in your project as `mediapeers.ecs-cluster`.
 
-For completness example contains to plays. One to fullfil preconditions for this role by setting up a VPC with normal Ansible modules. And a second
+For completness example contains two plays. One to fullfil preconditions for this role by setting up a VPC with normal Ansible modules. And a second
 one using this role to setup the ECS cluster using the results of the VPC setup.
 
 
@@ -118,7 +123,7 @@ one using this role to setup the ECS cluster using the results of the VPC setup.
       - role: "ecs-cluster"
     ecs_ec2_region: us-east-1
   roles:
-    - mediapeers.ansible-role-ecs-cluster
+    - mediapeers.ecs-cluster
 
 ```
 
