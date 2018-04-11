@@ -1,3 +1,5 @@
+---
+
 # Check pre-requisites
 - import_tasks: pre-requisites.yml
 
