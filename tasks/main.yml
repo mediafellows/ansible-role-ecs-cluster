@@ -18,6 +18,7 @@
       name: "{{ ecs_instance_iam_role }}"
       # TODO: uncomment next line once we switched to Ansible 2.5
       # description: "EC2 permissions for EC2 instances that are part of EC2 clusters"
+      assume_role_policy_document: "{{ lookup('file', 'iam_trust_policy.json')  }}"
       managed_policy:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
       state: present
