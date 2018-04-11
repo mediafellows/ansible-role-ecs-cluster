@@ -1,5 +1,5 @@
 # Check pre-requisites
-- include: pre-requisites.yml
+- import_tasks: pre-requisites.yml
 
 # Commission block
 - block:
