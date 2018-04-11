@@ -133,4 +133,5 @@ MIT
 
 ## Author Information
 
-Daniel Rhoades (https://github.com/daniel-rhoades)
+- Stefan Horning
+- Daniel Rhoades (https://github.com/daniel-rhoades)
