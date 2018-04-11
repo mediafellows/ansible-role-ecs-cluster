@@ -1,5 +1,5 @@
 # Check pre-requisites
-- include: pre-requisites.yml
+- import_tasks: pre-requisites.yml
 
 # Commission block
 - block:
@@ -7,26 +7,35 @@
   - name: "AWS | ECS | Provision the cluster"
     ecs_cluster:
       name: "{{ ecs_cluster_name }}"
-      state: "{{ ecs_state }}"
+      state: present
     register: ecs_cluster
 
   - debug: var=ecs_cluster verbosity=4
+
+  # IAM role for permissions on EC2 instances
+  - name: "AWS | IAM | Create IAM role needed for cluster EC2 instances access to AWS EC2 services"
+    iam_role:
+      name: "{{ ecs_instance_iam_role }}"
+      description: "EC2 permissions for EC2 instances that are part of EC2 clusters"
+      managed_policy:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+      state: present
 
   # Container Instances: Define a EC2 Launch Configuration to create EC2 instances that run the ECS agent, then ensure
   # they are registered into the ECS cluster
   - name: "AWS | EC2 | Define a EC2 Launch Configuration for ECS use"
     ec2_lc:
-      name: "{{ ec2_launch_configuration_name }}"
-      state: "{{ ecs_state }}"
-      image_id: "{{ ec2_ami_id }}"
-      key_name: "{{ key_name }}"
-      security_groups: "{{ ec2_security_groups }}"
-      instance_type: "{{ ec2_instance_type }}"
-      instance_monitoring: "{{ ec2_instance_monitoring }}"
-      instance_profile_name: "{{ ecs_instance_profile_name }}"
-      assign_public_ip: "{{ ec2_assign_public_ip }}"
-      user_data: "{{ ec2_userdata }}"
-      region: "{{ ec2_region }}"
+      name: "{{ ecs_launch_configuration_name }}"
+      image_id: "{{ ecs_ami_id }}"
+      key_name: "{{ ecs_ssh_key_name }}"
+      security_groups: "{{ ecs_security_groups }}"
+      instance_type: "{{ ecs_instance_type }}"
+      instance_monitoring: "{{ ecs_instance_monitoring }}"
+      instance_profile_name: "{{ ecs_instance_iam_role }}"
+      assign_public_ip: "{{ ecs_assign_public_ip }}"
+      user_data: "{{ ecs_userdata }}"
+      region: "{{ ecs_ec2_region }}"
+      state: present
     register: ec2_lc
 
   - debug: var=ec2_lc verbosity=4
@@ -34,21 +43,20 @@
   # Container Instances: Define an Auto Scaling Group to manage creating/terminating EC2 instances
   - name: "AWS | EC2 | Define a EC2 Auto Scaling Group for ECS use"
     ec2_asg:
-      name: "{{ ec2_asg_name }}"
-      state: "{{ ec2_asg_state }}"
-      health_check_period: "{{ ec2_asg_health_check_period }}"
-      health_check_type: "{{ ec2_asg_health_type }}"
-      default_cooldown: "{{ ec2_asg_default_cooldown }}"
-      replace_all_instances: "{{ ec2_asg_replace_all_instances }}"
-      availability_zones: "{{ ec2_asg_availability_zones }}"
-      launch_config_name: "{{ ec2_launch_configuration_name }}"
-      min_size: "{{ ec2_asg_min_size }}"
-      max_size: "{{ ec2_asg_max_size }}"
-      desired_capacity: "{{ ec2_asg_desired_capacity }}"
-      vpc_zone_identifier: "{{ ec2_asg_vpc_subnets }}"
-      tags: "{{ ec2_asg_tags }}"
-      wait_for_instances: "{{ ec2_asg_wait }}"
-      region: "{{ ec2_region }}"
+      name: "{{ ecs_asg_name }}"
+      health_check_period: "{{ ecs_asg_health_check_period }}"
+      health_check_type: "{{ ecs_asg_health_type }}"
+      default_cooldown: "{{ ecs_asg_default_cooldown }}"
+      replace_all_instances: "{{ ecs_asg_replace_all_instances }}"
+      launch_config_name: "{{ ec2_lc.name }}"
+      min_size: "{{ ecs_asg_min_size }}"
+      max_size: "{{ ecs_asg_max_size }}"
+      desired_capacity: "{{ ecs_asg_desired_capacity }}"
+      vpc_zone_identifier: "{{ ecs_vpc_subnets }}"
+      tags: "{{ ecs_ec2_tags }}"
+      wait_for_instances: true
+      region: "{{ ecs_ec2_region }}"
+      state: present
     register: ec2_asg
 
   - debug: var=ec2_asg verbosity=4
@@ -60,20 +68,26 @@
   # Decommision the EC2 Auto Scaling Group
   - name: "AWS | EC2 | Decomission the EC2 Auto Scaling Group"
     ec2_asg:
-      name: "{{ ec2_asg_name }}"
-      state: "absent"
+      name: "{{ ecs_asg_name }}"
+      state: absent
       wait_for_instances: "{{ ec2_asg_wait }}"
 
   # Decommision the EC2 Launch Configuration
   - name: "AWS | EC2 | Decomission the EC2 Launch Configuration"
     ec2_lc:
-      name: "{{ ec2_launch_configuration_name }}"
-      state: "absent"
+      name: "{{ ecs_launch_configuration_name }}"
+      state: absent
+
+  # Decommision the IAM role
+  - name: "AWS | IAM | Create IAM role needed for cluster EC2 instances access to AWS EC2 services"
+    iam_role:
+      name: "{{ ecs_instance_iam_role }}"
+      state: absent
 
   # Decomission the ECS cluster
   - name: "AWS | ECS | Decommission the cluster"
     ecs_cluster:
       name: "{{ ecs_cluster_name }}"
-      state: "absent"
+      state: absent
 
   when: ecs_state == "absent"
