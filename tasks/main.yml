@@ -24,6 +24,18 @@
       managed_policy:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
       state: present
+    register: iam_machine_role
+
+  - debug: var=iam_machine_role # verbosity=4
+
+  # Add CloudWatch policy to IAM role, as we create new LogGroups from the instance, see awslog config setup through user_data
+  - name: "AWS | IAM | Attach IAM inline policy to IAM role to also create LogGroups on CloudWatch"
+    iam_policy:
+      iam_type: role
+      iam_name: "{{ iam_machine_role.iam_role.role_name }}"
+      policy_name: "cloudwatch_create_log_group"
+      policy_json: '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": ["logs:CreateLogGroup"], "Resource": "*"}]}'
+      state: present
 
   # Container Instances: Define a EC2 Launch Configuration to create EC2 instances that run the ECS agent, then ensure
   # they are registered into the ECS cluster
