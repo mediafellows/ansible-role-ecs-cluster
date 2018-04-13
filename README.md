@@ -20,7 +20,7 @@ dir by adding it as a git submodule.
 
 ## Requirements
 
-Needs a VPC with subnets and security groups to be present on AWS already for this role to use. Also you should use Ansible 2.4 or newer.
+Needs a VPC with subnets and security groups to be present on AWS already for this role to use. Also you should use Ansible 2.5 or newer.
 
 If not already done you also need to configure your Ansible environment for use with AWS, see http://docs.ansible.com/ansible/guide_aws.html.
 
