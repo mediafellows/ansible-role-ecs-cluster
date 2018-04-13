@@ -46,7 +46,7 @@ ecs_asg_health_type: EC2
 ecs_env: development
 
 # Cloudwatch namespacing
-cloudwatch_namespace: "ecs/{{ ecs_cluster_name }}-{{ ecs_env }}"
+cloudwatch_namespace: "/ecs/{{ ecs_cluster_name }}-{{ ecs_env }}"
 
 # User-data needed to register the EC2 instance with ECS
 ecs_userdata: |
