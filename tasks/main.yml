@@ -12,7 +12,7 @@
       state: present
     register: ecs_cluster
 
-  - debug: var=ecs_cluster verbosity=4
+  - debug: var=ecs_cluster verbosity=3
 
   # IAM role for permissions on EC2 instances
   - name: "AWS | IAM | Create IAM role needed for cluster EC2 instances access to AWS EC2 services"
@@ -25,7 +25,7 @@
       state: present
     register: iam_machine_role
 
-  - debug: var=iam_machine_role # verbosity=4
+  - debug: var=iam_machine_role verbosity=3
 
   # Add CloudWatch policy to IAM role, as we create new LogGroups from the instance, see awslog config setup through user_data
   - name: "AWS | IAM | Attach IAM inline policy to IAM role to also create LogGroups on CloudWatch"
@@ -53,7 +53,7 @@
       state: present
     register: ec2_lc
 
-  - debug: var=ec2_lc verbosity=4
+  - debug: var=ec2_lc verbosity=3
 
   # Container Instances: Define an Auto Scaling Group to manage creating/terminating EC2 instances
   - name: "AWS | EC2 | Define a EC2 Auto Scaling Group for ECS use"
@@ -74,7 +74,7 @@
       state: present
     register: ec2_asg
 
-  - debug: var=ec2_asg verbosity=4
+  - debug: var=ec2_asg verbosity=3
 
   when: ecs_state == "present"
 
