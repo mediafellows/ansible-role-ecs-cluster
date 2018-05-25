@@ -29,7 +29,7 @@
 
   - name: Wait for IAM role to become available
     pause:
-      wait: 10
+      seconds: 10
     when: iam_machine_role.changed
 
   # Add CloudWatch policy to IAM role, as we create new LogGroups from the instance, see awslog config setup through user_data
