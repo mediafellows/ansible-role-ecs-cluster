@@ -1,5 +1,5 @@
 # Name of the Launch Configuration
-ecs_launch_configuration_name: "{{ ecs_cluster_name }}-lc"
+ecs_launch_configuration_name: "{{ ecs_cluster_name }}-lc-{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"
 
 # Default component state
 ecs_state: present
