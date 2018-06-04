@@ -77,7 +77,6 @@
     register: ec2_new_lc
     when:
       - ec2_lc_usable is undefined
-      - ec2_lc_usable.launch_configuration_name is undefined
 
   - name: Set launch config name (to either existing or newly created one)
     set_fact:
@@ -88,10 +87,10 @@
   - set_fact:
       ec2_ecs_lc_name: "{{ ec2_new_lc.name }}"
     when:
-      - ec2_lc is defined
-      - ec2_lc.name is defined
+      - ec2_new_lc is defined
+      - ec2_new_lc.name is defined
 
-  - debug: var=ec2_ecs_lc_name # verbosity=2
+  - debug: var=ec2_ecs_lc_name verbosity=1
 
   # Container Instances: Define an Auto Scaling Group to manage creating/terminating EC2 instances
   - name: "AWS | EC2 | Define a EC2 Auto Scaling Group for ECS use"
