@@ -11,12 +11,13 @@ For more detailed on information on the creating:
 * ECS Services: http://docs.ansible.com/ansible/ecs_service_module.html;
 * ECS Task Definition: http://docs.ansible.com/ansible/ecs_taskdefinition_module.html.
 
-This role will completely setup an unlimited size, self-healing, auto-scaling EC2 cluster registered to an ECS cluster, ready to accept ECS Service and Task Definitions with centralised log management.
+This role will completely setup an unlimited size, self-healing, auto-scaling ECS cluster on AWS using the EC2/ECS products,
+ready to accept ECS Service and Task Definitions including Cloudwatch log collection.
 
 ## Installation
 
-Install this role through your usual patterns into your Ansible project. Either use `ansible-galaxy install mediapeers.ecs-cluster` or add it to your roles
-dir by adding it as a git submodule.
+Add this role through the usual way to your Ansible project/setup. Either use `ansible-galaxy install mediapeers.ecs-cluster` or add it
+to your roles dir by adding it as a git submodule.
 
 ## Requirements
 
@@ -33,14 +34,14 @@ Required variables:
 * `ecs_security_groups` - You must specify a list of existing EC2 security groups IDs to apply to the auto-scaling EC2 instances, e.g. ['sg-1234']
 * `ecs_vpc_subnets` - You must specify a list of existing VPC subnet ids for which to provision the EC2 nodes into, e.g. ['subnet-123', 'subnet-456']
 
-For overwriting other variables (with defaults) checkout `defaults/main.yml` for reference.
+For overwriting other variables (their defaults) checkout `defaults/main.yml` for reference.
 
 **Notes:**
 
 Make sure that `ecs_ec2_region` is set correctly. Machine tagging can be done by setting `ecs_ec2_tags`.
 
-The default `ecs_userdata` will register the EC2 instance within the ECS cluster and configure the instance to stream it's logs to AWS CloudWatch Logs for centralised management.
-Log Groups are pre-pended with `{{ cloudwatch_namespace }}`
+The default `ecs_userdata` will register the EC2 instance within the ECS cluster and configure the instance to stream it's logs to AWS CloudWatch Logs
+for centralised management. Log Groups are pre-pended with `{{ cloudwatch_namespace }}`.
 
 ## Dependencies
 
@@ -124,7 +125,30 @@ one using this role to setup the ECS cluster using the results of the VPC setup.
     ecs_ec2_region: us-east-1
   roles:
     - mediapeers.ecs-cluster
+  tasks:
 
+    # Setup services on your now running cluster, using the Ansible modules for ECS, like this:
+
+    - name: Create task definition for a service running in docker container(s)
+      ecs_taskdefinition:
+        family: my-little-service-task
+        containers:
+          - name: simple-app
+            cpu: 2
+            memory: 500
+            image: "foo:bar"
+            # needs more params here, see docs
+        region: "{{ ecs_ec2_region }}"
+        state: present
+      register: my_task_definition
+
+    - name: Create service running on the ECS cluster
+      ecs_service:
+        name: my-little-service
+        cluster: "{{ ecs_cluster_name }}"
+        task_definition: "{{ my_task_definition.taskdefinition.taskDefinitionArn }}"
+        region: "{{ ecs_ec2_region }}"
+        state: present
 ```
 
 ## License

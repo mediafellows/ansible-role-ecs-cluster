@@ -14,7 +14,7 @@
 
   - debug: var=ecs_cluster verbosity=3
 
-  # IAM role for permissions on EC2 instances
+  # Permissions: IAM role for permissions on EC2 instances
   - name: "AWS | IAM | Create IAM role needed for cluster EC2 instances access to AWS EC2 services"
     iam_role:
       name: "{{ ecs_instance_iam_role }}"
@@ -25,14 +25,14 @@
       state: present
     register: iam_machine_role
 
-  - debug: var=iam_machine_role verbosity=3
+  - debug: var=iam_machine_role verbosity=2
 
   - name: Wait for IAM role to become available
     pause:
       seconds: 10
     when: iam_machine_role.changed
 
-  # Add CloudWatch policy to IAM role, as we create new LogGroups from the instance, see awslog config setup through user_data
+  # Permissions: Add CloudWatch policy to IAM role, as we create new LogGroups from the instance, see awslog config setup through user_data
   - name: "AWS | IAM | Attach IAM inline policy to IAM role to also create LogGroups on CloudWatch"
     iam_policy:
       iam_type: role
@@ -41,11 +41,29 @@
       policy_json: '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": ["logs:CreateLogGroup"], "Resource": "*"}]}'
       state: present
 
-  # Container Instances: Define a EC2 Launch Configuration to create EC2 instances that run the ECS agent, then ensure
-  # they are registered into the ECS cluster
-  - name: "AWS | EC2 | Define a EC2 Launch Configuration for ECS use"
+  # Container Instances: Define a EC2 Launch Configuration to create EC2 instances in an ASG that run the ECS agent
+  # Try to find a matching Launch config first for given AMI ID and instance type combo, if not found create a new one
+  # to update ASG with it and roll over to new image/instance type.
+
+  - name: "AWS | EC2 | Retrieve existing EC2 Launch configurations to see if need to create one"
+    ec2_lc_facts:
+      sort: created_time
+      region: "{{ ecs_ec2_region }}"
+    register: ec2_lc_list
+
+  - name: "Local | Extract Launch Configs from List that match given AMI ID"
+    set_fact:
+      ec2_lc_existing: "{{ ec2_lc_list.launch_configurations | selectattr('image_id', 'equalto', ecs_ami_id) | list }}"
+    when: (ec2_lc_list.launch_configurations | length) > 0
+
+  - name: "Local | Of AMI matching Launch Configs select one that also matches instance type"
+    set_fact:
+      ec2_lc_usable: "{{ ec2_lc_existing | selectattr('instance_type', 'equalto', ecs_instance_type) | list | last }}"
+    when: (ec2_lc_existing | length) > 0
+
+  - name: "AWS | EC2 | Create a new EC2 Launch Configuration for ECS use (if non was found)"
     ec2_lc:
-      name: "{{ ecs_launch_configuration_name }}"
+      name: "{{ ecs_cluster_name }}-lc-{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"
       image_id: "{{ ecs_ami_id }}"
       key_name: "{{ ecs_ssh_key_name }}"
       security_groups: "{{ ecs_security_groups }}"
@@ -56,9 +74,23 @@
       user_data: "{{ ecs_userdata }}"
       region: "{{ ecs_ec2_region }}"
       state: present
-    register: ec2_lc
+    register: ec2_new_lc
+    when:
+      - ec2_lc_usable is undefined
 
-  - debug: var=ec2_lc verbosity=3
+  - name: Set launch config name (to either existing or newly created one)
+    set_fact:
+      ec2_ecs_lc_name: "{{ ec2_lc_usable.launch_configuration_name }}"
+    when:
+      - ec2_lc_usable is defined
+      - ec2_lc_usable.launch_configuration_name is defined
+  - set_fact:
+      ec2_ecs_lc_name: "{{ ec2_new_lc.name }}"
+    when:
+      - ec2_new_lc is defined
+      - ec2_new_lc.name is defined
+
+  - debug: var=ec2_ecs_lc_name verbosity=1
 
   # Container Instances: Define an Auto Scaling Group to manage creating/terminating EC2 instances
   - name: "AWS | EC2 | Define a EC2 Auto Scaling Group for ECS use"
@@ -68,7 +100,7 @@
       health_check_type: "{{ ecs_asg_health_type }}"
       default_cooldown: "{{ ecs_asg_default_cooldown }}"
       replace_all_instances: "{{ ecs_asg_replace_all_instances }}"
-      launch_config_name: "{{ ec2_lc.name }}"
+      launch_config_name: "{{ ec2_ecs_lc_name }}"
       min_size: "{{ ecs_asg_min_size }}"
       max_size: "{{ ecs_asg_max_size }}"
       desired_capacity: "{{ ecs_asg_desired_capacity }}"
@@ -79,24 +111,30 @@
       state: present
     register: ec2_asg
 
-  - debug: var=ec2_asg verbosity=3
+  - debug: var=ec2_asg verbosity=2
 
   when: ecs_state == "present"
 
 # Decommission block
 - block:
+  - name: "AWS | EC2 | Get Auto Scaling Group infos, to know which LC to delete later"
+    ec2_asg_facts:
+      name: "{{ ecs_asg_name }}"
+      region: "{{ ecs_ec2_region }}"
+    register: ec2_asg
+
   # Decommision the EC2 Auto Scaling Group
   - name: "AWS | EC2 | Decomission the EC2 Auto Scaling Group"
     ec2_asg:
       name: "{{ ecs_asg_name }}"
       state: absent
-      wait_for_instances: "{{ ec2_asg_wait }}"
 
   # Decommision the EC2 Launch Configuration
   - name: "AWS | EC2 | Decomission the EC2 Launch Configuration"
     ec2_lc:
-      name: "{{ ecs_launch_configuration_name }}"
+      name: "{{ ec2_asg.results.0.launch_configuration_name }}"
       state: absent
+    when: ec2_asg.results.0 is defined
 
   # Decommision the IAM role
   - name: "AWS | IAM | Create IAM role needed for cluster EC2 instances access to AWS EC2 services"
