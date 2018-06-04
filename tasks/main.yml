@@ -53,15 +53,15 @@
 
   - name: "Local | Extract Launch Configs from List that match given AMI ID"
     set_fact:
-      ec2_lc_existing: "{{ lc_facts.launch_configurations | selectattr('image_id', 'equalto', ecs_ami_id) | list }}"
+      ec2_lc_existing: "{{ ec2_lc_list.launch_configurations | selectattr('image_id', 'equalto', ecs_ami_id) | list }}"
     when: (ec2_lc_list.launch_configurations | length) > 0
 
-  - name: "Local | Of AMI matching Launch Config select one that also matches instance type"
+  - name: "Local | Of AMI matching Launch Configs select one that also matches instance type"
     set_fact:
-      ec2_lc_usable: "{{ ec2_lc_existing | selectattr('instance_type', 'equalto', ecs_instance_type) | list | last}}"
+      ec2_lc_usable: "{{ ec2_lc_existing | selectattr('instance_type', 'equalto', ecs_instance_type) | list | last }}"
     when: (ec2_lc_existing | length) > 0
 
-  - name: "AWS | EC2 | Define a EC2 Launch Configuration for ECS use"
+  - name: "AWS | EC2 | Create a new EC2 Launch Configuration for ECS use (if non was found)"
     ec2_lc:
       name: "{{ ecs_cluster_name }}-lc-{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"
       image_id: "{{ ecs_ami_id }}"
@@ -74,7 +74,7 @@
       user_data: "{{ ecs_userdata }}"
       region: "{{ ecs_ec2_region }}"
       state: present
-    register: ec2_lc
+    register: ec2_new_lc
     when:
       - ec2_lc_usable is undefined
       - ec2_lc_usable.launch_configuration_name is undefined
@@ -86,7 +86,7 @@
       - ec2_lc_usable is defined
       - ec2_lc_usable.launch_configuration_name is defined
   - set_fact:
-      ec2_ecs_lc_name: "{{ ec2_lc.name }}"
+      ec2_ecs_lc_name: "{{ ec2_new_lc.name }}"
     when:
       - ec2_lc is defined
       - ec2_lc.name is defined
