@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mediapeers/ansible-role-ecs-cluster.svg?branch=master)](https://travis-ci.org/mediapeers/ansible-role-ecs-cluster)
+[![Build Status](https://travis-ci.com/mediapeers/ansible-role-ecs-cluster.svg?branch=master)](https://travis-ci.com/mediapeers/ansible-role-ecs-cluster)
 
 # Ansible role for creating an AWS ECS-Cluster
 
