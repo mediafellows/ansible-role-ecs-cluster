@@ -46,7 +46,7 @@
   # to update ASG with it and roll over to new image/instance type.
 
   - name: "AWS | EC2 | Retrieve existing EC2 Launch configurations to see if need to create one"
-    ec2_lc_facts:
+    ec2_lc_info:
       sort: created_time
       region: "{{ ecs_ec2_region }}"
     register: ec2_lc_list
@@ -118,7 +118,7 @@
 # Decommission block
 - block:
   - name: "AWS | EC2 | Get Auto Scaling Group infos, to know which LC to delete later"
-    ec2_asg_facts:
+    ec2_asg_info:
       name: "{{ ecs_asg_name }}"
       region: "{{ ecs_ec2_region }}"
     register: ec2_asg
