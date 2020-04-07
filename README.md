@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/mediapeers/ansible-role-ecs-cluster.svg?branch=master)](https://travis-ci.com/mediapeers/ansible-role-ecs-cluster)
+[![Build Status](https://travis-ci.com/mediafellows/ansible-role-ecs-cluster.svg?branch=master)](https://travis-ci.com/mediafellows/ansible-role-ecs-cluster)
 
 # Ansible role for creating an AWS ECS-Cluster
 
@@ -16,7 +16,7 @@ ready to accept ECS Service and Task Definitions including Cloudwatch log collec
 
 ## Installation
 
-Add this role through the usual way to your Ansible project/setup. Either use `ansible-galaxy install mediapeers.ecs-cluster` or add it
+Add this role through the usual way to your Ansible project/setup. Either use `ansible-galaxy install mediafellows.ecs-cluster` or add it
 to your roles dir by adding it as a git submodule.
 
 ## Requirements
@@ -49,7 +49,7 @@ Depends on no other Ansible roles.
 
 ## Example Playbook
 
-After installing this role you can use it in your project as `mediapeers.ecs-cluster`.
+After installing this role you can use it in your project as `mediafellows.ecs-cluster`.
 
 For completness example contains two plays. One to fullfil preconditions for this role by setting up a VPC with normal Ansible modules. And a second
 one using this role to setup the ECS cluster using the results of the VPC setup.
@@ -124,7 +124,7 @@ one using this role to setup the ECS cluster using the results of the VPC setup.
       - role: "ecs-cluster"
     ecs_ec2_region: us-east-1
   roles:
-    - mediapeers.ecs-cluster
+    - mediafellows.ecs-cluster
   tasks:
 
     # Setup services on your now running cluster, using the Ansible modules for ECS, like this:
